@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 2. Shell скрипты
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>Поиск по именам файлов</h3>
+        <ul>
+<li>
+<p>Для поиска файлов (и групповых операций над ними) удобно использовать утилиту find</p>
+<pre><code>  # Find all directories named src
+  find . -name src -type d
+  # Find all python files that have a folder named test in their path
+  find . -path '*/test/*.py' -type f
+  # Find all files modified in the last day
+  find . -mtime -1
+  # Find all zip files with size in range 500k to 10M
+  find . -size +500k -size -10M -name '*.tar.gz'
+  # Delete all files with .tmp extension
+  find . -name '*.tmp' -exec rm {} \;
+  # Find all PNG files and convert them to JPG
+  find . -name '*.png' -exec convert {} {}.jpg \;</code></pre>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Поиск по содержанию файлов</h3>
+        <ul>
+<li>Поиск по содержанию файлов можно сделать с помощью <code>grep</code> (<code>-C</code> - контекст вокруг совпадения, <code>-R</code> - поиск рекурсивно в директории)</li>
+<li>Кроме этого, можно использовать <a href="https://github.com/ggreer/the_silver_searcher" target="_blank" rel="noopener">ag</a></li>
+<li>Для поиска уже использованной команды можно использовать <code>history</code> (обычно вместе с <code>grep</code>)</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Исполняемые файлы</h3>
+        <ul>
+<li>Для процессора, на самом деле, нет разницы между командами и данными - и то, и другое - последовательность байт</li>
+<li>В ОС семейства Unix (Linux, macOS (darwin), ...) исполняемость файла определяется не по расширению (как в Windows), а по истинности специального флага</li>
+<li>Посмотреть выставленные флаги (r(ead), w(rite), (e)x(ecute)) можно с помощью команды <code>ls -l &lt;FILENAME&gt;</code></li>
+<li>Исполняемым файлом может быть как скомпилированный файл (бинарный), так и текстовый интерпретируемый файл</li>
+<li>Изменить флаг исполняемости можно с помощью <code>chmod</code></li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Исполняемые файлы</h3>
+        <ul>
+<li>Бинарный файл для корректного исполнения должен удовлетворять определенному формату (например, ELF для Linux)</li>
+<li>Текстовый файл при исполнении определяет интерпретатор, на вход которому должен подаваться файл, через комментарий в начале файла <code>#!&lt;PATH&gt;\n</code> (Shebang line)</li>
+<li>Для большинства (если не всех) интерпретируемых языков <code>#</code> является символом комментария, поэтому при интерпретации файла верхняя строка игнорируется</li>
+<li>Таким образом, можно сделать исполняемым файл, например, python программы, и для конечного пользователя не будет необходимости явным образом передавать на вход интерпретатору программу (но версию интерпретатора, зависимые пакеты и пр. все равно придется ставить)</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Shell скрипты</h3>
+        <ul>
+<li>Shell скрипты позволяют использовать всю мощь работы в командной строке для написания простых (и не очень) &quot;сценариев&quot;</li>
+<li>Некоторые скрипты сильно проще написать на shell, чем на другом языке программирования (например, при работе с репозиторием <code>git</code> - есть мощный <code>cli</code> клиент)</li>
+<li>Shell скрипты обычно имеют расширение <code>.sh</code> или никакого, конкретный интерпретатор указывается через <code>#!</code></li>
+<li>Наиболее популярный интерпретатор - <code>bash</code>. По умолчанию, если скриптом планируют пользоваться другие люди, рекомендую использовать его</li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Переменные</h3>
+        <ul>
+<li>Переменные в скрипте задаются через синтаксис <code>foo=bar</code> (если написать с пробелами <code>foo = bar</code>, то это будет интерпретироваться как команда <code>foo</code> с аргументами <code>=</code> и <code>bar</code>)</li>
+<li>Доступ к значениям переменных через синтаксис <code>$foo</code> (или, если есть подчеркивания в имени, <code>${foo_name}</code>) - вместо <code>$foo</code> подставится значение переменной</li>
+<li>Строковые значения задаются через <code>'</code> или <code>&quot;</code>. Однако, они не эквивалентны - в строках, определенных через <code>'</code> переменные не подставляются</li>
+<li>Если хочется дать доступ к переменной дочерним процессам (настроить окружение), то нужно вызвать <code>export $foo=bar</code> (или <code>export $foo</code>)</li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Переменные</h3>
+        <ul>
+<li>В списке переменных, кроме всего прочего, будут доступны переменные &quot;внешнего&quot; окружения и специальные переменные</li>
+<li><code>$0</code> - имя команды текущего процесса; <code>$1</code>, <code>$2</code>, ... - аргументы командной строки, <code>$*</code> - список всех аргументов, <code>$#</code> - количество аргументов, <code>$?</code> - код возврата предыдущей выполненной команды</li>
+<li>&quot;Вывести&quot; результат работы команды в строку можно через ``` - одинарные обратные кавычки (можно внутри какой-либо большей строки)</li>
+<li>Кроме этого, можно воспользоваться синтаксисом <code>$( CMD )</code> для подстановки вывода команды в нужное место скрипта</li>
+<li>Для того, чтобы вывести вывод в временный файл и подставить имя файла, можно воспользоваться синтаксисом <code>&lt;( CMD )</code></li>
+<li>Для объединения разных условий используются операторы <code>||</code> и <code>&amp;&amp;</code></li>
+</ul>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Shell globbing</h3>
+        <ul>
+<li>Для оперирования множеством файлов можно использовать специальный синтаксис</li>
+<li>Символ <code>?</code> означает любой символ в имени, <code>*</code> - произвольное количество любых символов</li>
+<li>Можно перечислить в <code>{}</code> через запятую варианты для подстановки, если множество имен имеет общую подстроку</li>
+</ul>
+
+      
+      <span class="pagenumber">9</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Логические выражения</h3>
+        <ul>
+<li>Для определения истинности или ложности смотрится код возврата: 0 - истинна, !0 - ложь (см. <code>true</code> и <code>false</code>)</li>
+<li>Команда <code>[</code> предназначена для формирования логических выражений вида <code>[ EXPRESSION ]</code> (должны отделяться пробелом)</li>
+<li><code>-n STRING</code> - истина, если длина строки ненулевая</li>
+<li><code>-z STRING</code> - истина, если строка пустая</li>
+<li><code>STRING1 = STRING2</code> - истина, если строки равны (и <code>!=</code> аналогично)</li>
+<li><code>NUM1 -eq NUM2</code> - истина, если числа равны (аналогично <code>-ne</code>, <code>-gt</code>, <code>-ge</code>, <code>-lt</code>, <code>-le</code>)</li>
+<li><code>-e FILENAME</code> - указанный путь существует (<code>-d</code> - плюс является каталогом, <code>-f</code> - плюс является обычным файлом)</li>
+<li></li>
+</ul>
+
+      
+      <span class="pagenumber">10</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Условия</h3>
+        <pre><code>    if ВЫРАЖЕНИЕ 1
+    then
+        НАБОР КОМАНД 1
+    elif ВЫРАЖЕНИЕ 2
+        НАБОР КОМАНД 2
+    else
+        НАБОР КОМАНД 3
+    fi
+</code></pre>
+<ul>
+<li>Обратите внимание на переносы строк - это все новые команды</li>
+</ul>
+
+      
+      <span class="pagenumber">11</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Выбор варианта</h3>
+        <pre><code>    case ПЕРЕМЕННАЯ in
+        ВАРИАНТ1|ВАРИАНТ2|ВАРИАНТ3)
+        НАБОР КОММАНД 1
+        ;;
+        ВАРИАНТ4)
+        НАБОР КОММАНД 2
+        ;;
+        *)
+        НАБОР КОММАНД 3
+        ;;
+    esac</code></pre>
+
+      
+      <span class="pagenumber">12</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Циклы</h3>
+        <pre><code>    while УСЛОВИЕ
+    do
+    НАБОР КОММАНД
+    done
+
+    for ИМЯ in СПИСОК
+    do
+        НАБОР КОММАНД
+    done</code></pre>
+
+      
+      <span class="pagenumber">13</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Функции</h3>
+        <pre><code>    function_name () {
+        commands
+    }
+
+    function function_name {
+        commands
+    }
+</code></pre>
+<ul>
+<li>Для определения локальных переменных внутри функции - ключевое слово <code>local</code></li>
+<li>Код возврата - через <code>return</code> (0 - успех, 1-255 - неуспех)</li>
+<li>Аргументы - через <code>$1</code>, <code>$2</code>, ...</li>
+</ul>
+
+      
+      <span class="pagenumber">14</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Чтение и вывод</h3>
+        <ul>
+<li>Команда <code>read</code> читает одну строку (до символа <code>\n</code>) и сохраняет ее значение в указанной переменной (<code>read SOME_VAR</code>)</li>
+<li>Если поток данных завершился до ввода строки, то возвращается не нулевой код возврата</li>
+<li>Команда <code>printf</code> - форматированный вывод</li>
+</ul>
+
+      
+      <span class="pagenumber">15</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 2. Shell скрипты
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
