@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 3. Редакторы кода
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>Редакторы кода</h3>
+        <ul>
+<li>Очевидно, что написание кода и написание текста - абсолютно разные задачи</li>
+<li>Базово, и то, и другое можно писать в Блокноте, но продуктивным в обоих случаях это не назовешь</li>
+<li>Современные редакторы кода позволяют писать (и исследовать) код с большей продуктивностью, меньше отвлекаясь на ручное выполнение частых действий</li>
+<li>Многие разработчики настраивают редакторы (и среды разработки) под свои нужды, вплоть до шрифтов</li>
+</ul>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Редакторы кода</h3>
+        <ul>
+<li>Условно, редакторы можно разделить на консольные, с графическим интерфейсом и продвинутые IDE (но грань сильно размыта)</li>
+<li>Среди консольных популярны vi/vim, emacs, nano, micro, ...</li>
+<li>Среди UI редакторов популярны Sublime Text, Atom, VS Code, Notepad++, ...</li>
+<li>Среди IDE популярны Intellij Idea и ее производные, Visual Studio, XCode, Eclipse, ...</li>
+<li>Каждая из этих категорий (и каждый из продуктов) имеют свои (субъективные) достоинства и недостатки</li>
+<li>Зачастую даже возникают <a href="https://en.wikipedia.org/wiki/Editor_war" target="_blank" rel="noopener">&quot;войны&quot;</a> фанатов различных редакторов</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Vim</h3>
+        <ul>
+<li><a href="https://insights.stackoverflow.com/survey/2019/#development-environments-and-tools" target="_blank" rel="noopener">Наиболее популярный консольный редактор кода</a></li>
+<li>Имеет непривычный формат взаимодействия с кодом, основанный на командах; может показаться сложным в освоении</li>
+<li>Вполне реальный у новичков вопрос, многими воспринимаемый как шутка: <a href="https://stackoverflow.com/questions/11828270/how-do-i-exit-the-vim-editor" target="_blank" rel="noopener">&quot;Как выйти из vim?&quot;</a></li>
+<li>Однако, один раз привыкнув, бывает сложно вернуться к обычному редактированию кода - и многие UI редакторы и IDE имеют возможность включить &quot;vim mode&quot;</li>
+<li>Многие приверженцы vim настраивают и расширяют его годами, так как он очень гибок и может порой посоревноваться с некоторыми IDE</li>
+<li>Для знакомства с vim можно позвать команду <code>vimtutor</code></li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Философия vim</h3>
+        <ul>
+<li>Vim придерживается философии модального редактирования. Это означает, что у него есть несколько режимов, и значения клавиш меняются в зависимости от режима. Вы перемещаетесь по файлу в нормальном режиме, вставляете текст в режиме вставки, выделяете строки в визуальном режиме, выполняете команды в режиме командной строки, и т.д</li>
+<li>Другая концепция, которая хорошо проявляет при модальном редактировании, это — операторы и перемещения. Оператор начинает некое действие, например, изменение, удаление или выделение текста. Затем при помощи перемещения вы указываете область текста, с которой вы хотите работать</li>
+<li>Глядя на то, как работают продвинутые пользователи Vim, можно заметить, что они как бы разговаривают на языке Vim или похожи на пианиста, играющего на своём инструменте. Сложные операции производятся небольшим количеством нажатий клавиш</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Модальное редактирование</h3>
+        <ul>
+<li>Предполагается (и почти всегда это так), что разработчики гораздо больше времени исследуют код и вносят небольшие правки. По этой причине у vim есть несколько режимов работы</li>
+<li><strong>Normal</strong> - для перемещения по файлу и небольших правок</li>
+<li><strong>Insert</strong> - для набора кода</li>
+<li><strong>Replace</strong> - для замен в коде</li>
+<li><strong>Visual</strong> - для выделения блоков кода</li>
+<li><strong>Command line</strong> - для выполнения команд</li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Модальное редактирование</h3>
+        <ul>
+<li>Нажатия клавиш имеют различный смысл (и производят различные действия) в разных режимах</li>
+<li>Например, <code>x</code> в Insert - вставляет символ <code>x</code>, в Normal - удаляет символ под курсором, в Visual - удалить выбранное</li>
+<li>По умолчанию, vim открывается в Normal</li>
+<li>Для перехода из любого режима в Normal надо нажать Esc, из него можно перейти в другие режимы: <code>i</code> - insert, <code>R</code> - replace, <code>v</code> - visual, <code>V</code> - line visual, <code>Ctrl+v</code> - block visual, <code>:</code> - command</li>
+<li>Esc, вероятно, самая часто используемая клавиша в vim. По этой причине многие переназначают Caps Lock на Esc</li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Основы редактирования</h3>
+        <ul>
+<li>Для написания кода нужно перейти в Insert и набирать код :)</li>
+<li>Для выполнения команд нужно перейти в Command и набрать команду
+<ul>
+<li><code>:q</code> - выйти из vim</li>
+<li><code>:w</code> - сохранить изменения на диск</li>
+<li><code>:wq</code> - сохранить и выйти</li>
+<li><code>:e &lt;filename&gt;</code> - открыть файл</li>
+<li><code>:ls</code> - показать открытые буфферы</li>
+<li><code>:help &lt;topic&gt;</code> - помощь по команде</li>
+</ul>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Vim как язык программирования</h3>
+        <ul>
+<li>Одна из основных идей vim заключается в том, что его интерфейс - сам по себе язык программирования</li>
+<li>Клавиши (с мнемоническими именами) могут объединяться в более сложные комбинации, что позволяет в несколько нажатий производить сложные операции</li>
+<li>Базовое перемещение <code>hjkl</code> (но можно и стрелками). Более сложные:
+<ul>
+<li>w (next word), b (beginning of word), e (end of word)</li>
+<li>0 (beginning of line), ^ (first non-blank character), $ (end of line)</li>
+<li>H (top of screen), M (middle of screen), L (bottom of screen)</li>
+<li>Ctrl-u (up), Ctrl-d (down)</li>
+<li>gg (beginning of file), G (end of file)</li>
+<li>:{number}<CR> or {number}G (line {number})</li>
+</ul>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">9</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Vim как язык программирования</h3>
+        <ul>
+<li>
+<ul>
+<li>% (corresponding item)</li>
+<li>f{character}, t{character}, F{character}, T{character} - find/to forward/backward {character} on the current line; , / ; for navigating matches</li>
+<li>/{regex}, n / N</li>
+</ul>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">10</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Редактирование</h3>
+        <ul>
+<li>i - Insert</li>
+<li>o / O - insert line below / above</li>
+<li>d{motion} - delete {motion}</li>
+<li>c{motion} - change {motion} (d{motion} + i)</li>
+<li>x - delete character</li>
+<li>s - substitute character</li>
+<li>u - undo, <C-r> - redo</li>
+<li>y - copy / “yank”</li>
+<li>p - paste</li>
+<li>~ - flips the case of a character</li>
+</ul>
+
+      
+      <span class="pagenumber">11</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Количество повторений и модификаторы</h3>
+        <ul>
+<li>3w - move 3 words forward</li>
+<li>5j - move 5 lines down</li>
+<li>7dw - delete 7 words</li>
+<li>ci( - change the contents inside the current pair of parentheses</li>
+<li>da' - delete a single-quoted string, including the surrounding single quotes</li>
+</ul>
+
+      
+      <span class="pagenumber">12</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Кастомизация</h3>
+        <ul>
+<li>Конфигурация для vim находится в файле <code>~/.vimrc</code></li>
+<li><a href="https://missing.csail.mit.edu/2020/files/vimrc" target="_blank" rel="noopener">Документированный пример конфигурации</a></li>
+<li><a href="https://github.com/dbeliakov/hse-os-2019/blob/master/seminars/01/.vimrc" target="_blank" rel="noopener">Пример моей конфигурации</a></li>
+<li>Плагины можно установить в директорию <code>~/.vim/pack/vendor/start/</code> (например, через <code>git clone</code>)</li>
+<li><a href="https://github.com/preservim/nerdtree" target="_blank" rel="noopener">Пример плагина</a></li>
+<li>В интернете можно найти большое количество плагинов и продвинутых команд, все зависит только от вашего желания</li>
+<li>Из vim можно сделать даже (плюс-минус) полноценную IDE, с поиском по коду, автодополнением, дебаггингом, ...</li>
+</ul>
+
+      
+      <span class="pagenumber">13</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 3. Редакторы кода
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
