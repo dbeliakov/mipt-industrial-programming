@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 4. Преобразование данных
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>SSH</h3>
+        <ul>
+<li>SSH (Secure SHell) - сетевой протокол прикладного уровня, позволяющий производить удалённое управление операционной системой и туннелирование TCP-соединений (например, для передачи файлов)</li>
+<li>Самый популярный безопасный способ взаимодействия с удаленными серверами, большинство backend разработчиков пользуются им много раз за день</li>
+<li><code>ssh &lt;server dns name or ip&gt;</code> - подключиться с дефолтными auth методами и от имени текущего пользователя</li>
+<li><code>ssh -i &lt;private key path&gt; user1@&lt;dns or ip&gt;</code> - использовать указанный ключ и имя пользователя user1</li>
+<li><code>ssh -A &lt;dns or ip&gt;</code> - использовать ssh-agent для безопасного проброса ключей на сервер</li>
+<li>Ключи можно сгенерировать, например, при помощи <code>ssh-keygen</code></li>
+</ul>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Преобразование данных</h3>
+        <ul>
+<li>Есть шутка, что программисты занимаются перекладыванием json'ов</li>
+<li>В продолжение - продвинутые программисты перекладывают json в protobuf и обратно</li>
+<li>Не смотря на то, что это все шутки - обработка и преобразование данных в различных представлениях занимает много времени любого разработчика</li>
+<li>Порой многие (простые) преобразования в данных проще и быстрее сделать через bash команду или скрипт, чем писать что-то на Python или другом ЯП</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Преобразование данных</h3>
+        <ul>
+<li>Мы уже использовали много приемов, позволяющих так или иначе преобразовать данные: pipeline с помощью <code>|</code>, фильтрация с помощью <code>grep</code>, извлечение полей или форматирование json с помощью <code>jq</code>...</li>
+<li>Для того, чтобы преобразовать какие-либо данные, нужны сами данные и утилиты, которые будут заниматься преобразованиями</li>
+<li>В качестве источника тестовых данных можно использовать <code>journalctl</code> (linux only)</li>
+<li>Давайте, для примера, найдем все записи <code>Disconnected from ...</code></li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Sed</h3>
+        <ul>
+<li>Sed (Stream EDitor) - потоковый текстовый редактор (а также язык программирования), применяющий различные предопределённые текстовые преобразования к последовательному потоку текстовых данных</li>
+<li>Типичное использование - дать команду, каким образом преобразовать данные (например, контент файла), вместо того чтобы непосредственно его редактировать</li>
+<li>Sed поддерживает огромное количество команд, однако, вероятно, самая популярная - <code>s-substitution</code></li>
+<li><code>s/REGEX/SUBSTITUTION/</code>, где <code>REGEX</code> - регулярное выражение для поиска, а <code>SUBSTITUTION</code> - строка для замены</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Регулярные выражения</h3>
+        <ul>
+<li><code>.</code> - любой символ, за исключением новой строки</li>
+<li><code>*</code> - ноль или более символов предыдущего обозначения</li>
+<li><code>+</code> - один или более символов предыдущего обозначения</li>
+<li><code>[abc]</code> - любой из символов a, b или c</li>
+<li><code>(RX1|RX2)</code> - удовлетворяет <code>RX1</code> либо <code>RX2</code></li>
+<li><code>^</code> - старт строки</li>
+<li><code>$</code> - конец строки</li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Регулярные выражения</h3>
+        <ul>
+<li>Кроме этого, нужно помнить, что <code>*</code> и <code>+</code> - жадные по умолчанию</li>
+<li>Для исправления этого поведения в большинстве имплементаций регулярных выражений можно использовать <code>?</code> (но не в sed)</li>
+<li>Для отладки сложных регулярных выражений полезно бывает использовать <a href="https://regex101.com/r/qqbZqh/2" target="_blank" rel="noopener">regex debugger</a></li>
+<li>В комбинации с sed (да и большинством имплементаций) можно использовать группы для извлечения информации из текста</li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>awk</h3>
+        <ul>
+<li>Awk — C-подобный скриптовый язык построчного разбора и обработки входного потока (например, текстового файла) по заданным шаблонам (регулярным выражениям). Может использоваться в сценариях командной строки</li>
+<li>Awk, как и sed, имеет очень много возможностей (но мы затронем лишь базовые вещи)</li>
+<li>Awk программа - это шаблон (по умолчанию принимает все) и набор действий, который надо выполнить с найденной строкой</li>
+<li>Строка внутри awk разделяется на поля (по умолчанию - по пробельным символам, можно изменить через <code>-F</code>), <code>$0</code> - вся строка, <code>$1</code>-<code>$n</code> - поля с соответствующим номером</li>
+<li><code>awk '{print $2}'</code> - для каждой строки напечатать второе поле</li>
+<li>В большинстве случаев, awk позволяет заменить использование sed и grep</li>
+</ul>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 4. Преобразование данных
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
