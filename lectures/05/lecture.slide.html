@@ -1,0 +1,477 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 5. Version Control (Git)
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>Version control</h3>
+        
+<div class="image">
+  <img src="img/version-control.png">
+</div>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Системы контроля версий</h3>
+        <ul>
+<li>Системы контроля версий (Version Control Systems, VCS) - инструменты, используемые для отслеживания изменений исходного кода (и не только)</li>
+<li>Кроме этого, VSC помогают вести совместную работу над проектом, путем внесения атомарных изменений в общей кодовой базе</li>
+<li>VSC хранят историю всех изменений над исходным кодом, включая метаданные (авторство, дату, комментарий и пр.), что позволяет понимать, почему текущее состояние выглядит именно так (и, при необходимости, восстанавливать предыдущие версии)</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Системы контроля версий</h3>
+        <p>Системы контроля версий позволяют (в том числе) ответить на вопросы:</p>
+<ul>
+<li>Кто написал эту часть кода?</li>
+<li>Когда была изменена эта конкретная строка кода? Кем? Почему?</li>
+<li>Когда среди последних N версий кода что-то пошло не так (сломался тест, хуже - сервис)?</li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Централизованные VCS</h3>
+        <ul>
+<li>Центральный сервер следит за версиями, клиенты получают файлы из него</li>
+<li>Много лет назад это было стандартом</li>
+<li>Централизованный сервер является уязвимым местом всей системы - его отказ приводит к остановке работы или даже к потере данных и истории</li>
+<li>CVS (середина 80х), Subversion (SVN, 2000)</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Распределенные VSC</h3>
+        <ul>
+<li>Клиенты полностью копируют (клонируют) весь репозиторий</li>
+<li>Изменения в локальных копиях время от времени выгружаются в удаленный репозиторий</li>
+<li>При отказе сервера (и отсутствии бэкапов) можно восстановить репозиторий из клиентской копии</li>
+<li>Git, Mercurial, Bazaar</li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Git</h3>
+        <ul>
+<li>Разработана Линусом Торвальдсом для использования в процессе разработки ядра Linux</li>
+<li>Является самой быстрой распределенной VSC, использующей самое компактное хранилище ревизий</li>
+<li>Одна из самых популярных VSC, де-факто - стандарт</li>
+<li>Интерфейс управления git-репозиторием может показаться сложным</li>
+<li>While an ugly interface has to be memorized, a beautiful design can be understood</li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Git</h3>
+        
+<div class="image">
+  <img src="img/git.png">
+</div>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Модель данных</h3>
+        <ul>
+<li>
+<p>В терминах Git файл - это &quot;blob&quot;, последовательность байт</p>
+</li>
+<li>
+<p>Директория - &quot;tree&quot;, отображает имена в другие blob'ы и tree</p>
+</li>
+<li>
+<p>Snapshot - верхнеуровневый tree</p>
+<pre><code>  root (tree)
+  |
+  +- foo (tree)
+  |  |
+  |  + bar.txt (blob, contents = &quot;hello world&quot;)
+  |
+  +- baz.txt (blob, contents = &quot;git is wonderful&quot;)</code></pre>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">9</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Модель истории</h3>
+        <ul>
+<li>История в Git - ориентированный ациклический граф snapshot'ов</li>
+<li>Каждый snapshot имеет одного или нескольких родителей</li>
+<li>Простейший случай - линейная история, каждый snapshot имеет одного родителя</li>
+<li>Множество родителей может появиться, например, в результате слияния (merge) двух веток (branch)</li>
+<li>Snapshot в истории называется commit</li>
+</ul>
+
+      
+      <span class="pagenumber">10</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Git</h3>
+        <pre><code>    // a file is a bunch of bytes
+    type blob = array[byte]
+
+    // a directory contains named files and directories
+    type tree = map[string, tree | blob]
+
+    // a commit has parents, metadata, and the top-level tree
+    type commit = struct {
+        parent: array[commit]
+        author: string
+        message: string
+        snapshot: tree
+    }</code></pre>
+
+      
+      <span class="pagenumber">11</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Адресация</h3>
+        <ul>
+<li>
+<p>Объект (object) - blob, tree или commit</p>
+</li>
+<li>
+<p>Адрес объекта - SHA-1 хэш его содержания</p>
+<pre><code>  type object = blob | tree | commit
+  objects = map[string, object]
+
+  def store(object):
+      id = sha1(object)
+      objects[id] = object
+
+  def load(id):
+      return objects[id]</code></pre>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">12</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Адресация</h3>
+        <ul>
+<li>
+<p>Когда tree или commit ссылается на какой-либо объект, он хранит хэш этого объекта</p>
+<pre><code>  100644 blob 4448adbf7ecd394f42ae135bbeed9676e894af85    baz.txt
+  040000 tree c68d233a33c5c06e0340e4c224f0afca87c8ce87    foo</code></pre>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">13</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Reference</h3>
+        <ul>
+<li>Reference - это &quot;человекочитаемые&quot; имена для SHA-1 хэшей</li>
+<li>Reference указывает на commit, и они могут быть изменены (и постоянно меняются, например, для указания на более свежий commit)</li>
+<li>Специальный reference HEAD указывает, где мы (наше текущее состояние репозитория) сейчас в истории</li>
+</ul>
+
+      
+      <span class="pagenumber">14</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Репозиторий</h3>
+        <ul>
+<li>Git-репозиторий - набор объектов и reference'ов</li>
+<li>Данные репозитория хранятся в директории .git в корне репозитория</li>
+<li>Все команды git ... проводят манипуляции над объектами и reference'ами</li>
+</ul>
+
+      
+      <span class="pagenumber">15</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Staging</h3>
+        <ul>
+<li>Зачастую не хочется иметь в удаленном репозитории все файлы, присутствующие локально (например, артефакты сборки, временные файлы, недоделанные фичи)</li>
+<li>При создании commit'а в него входят изменения, явно добавленные в текущий stage</li>
+<li>Более того, можно построчно указать, какие изменения должны попасть в текущий коммит</li>
+</ul>
+
+      
+      <span class="pagenumber">16</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Установка git</h3>
+        <ul>
+<li><a href="https://githowto.com/ru" target="_blank" rel="noopener">Как установить Git под вашу платформу</a></li>
+<li><a href="https://githowto.com/ru/setup" target="_blank" rel="noopener">Настройка Git</a></li>
+<li><a href="https://githowto.com/ru/aliases" target="_blank" rel="noopener">Список полезных сокращений</a></li>
+</ul>
+
+      
+      <span class="pagenumber">17</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Команды git</h3>
+        <ul>
+<li>git help [command]: get help for a git command</li>
+<li>git init: creates a new git repo, with data stored in the .git directory</li>
+<li>git status: tells you what’s going on</li>
+<li>git add [filename]: adds files to staging area</li>
+<li>git commit: creates a new commit</li>
+<li>git log: shows a flattened log of history</li>
+<li>git log --all --graph --decorate: visualizes history as a DAG</li>
+<li>git diff [filename]: show changes you made relative to the staging area</li>
+<li>git diff [revision] [filename]: shows differences in a file between snapshots</li>
+<li>git checkout [revision]: updates HEAD and current branch</li>
+</ul>
+
+      
+      <span class="pagenumber">18</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Команды git</h3>
+        <ul>
+<li>git branch: shows branches</li>
+<li>git branch [name]: creates a branch</li>
+<li>git checkout -b [name]: creates a branch and switches to it
+<ul>
+<li>same as git branch [name]; git checkout [name]</li>
+</ul>
+</li>
+<li>git merge [revision]: merges into current branch</li>
+<li>git rebase: rebase set of patches onto a new base</li>
+<li>git cherry-pick: apply the changes introduced by some existing commits</li>
+</ul>
+
+      
+      <span class="pagenumber">19</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Команды git</h3>
+        <ul>
+<li>git remote: list remotes</li>
+<li>git remote add [name] [url]: add a remote</li>
+<li>git push [remote] [local branch]:[remote branch]: send objects to remote, and update remote reference</li>
+<li>git branch --set-upstream-to=[remote]/[remote branch]: set up correspondence between local and remote branch</li>
+<li>git fetch: retrieve objects/references from a remote</li>
+<li>git pull: same as git fetch; git merge</li>
+<li>git clone: download repository from remote</li>
+</ul>
+
+      
+      <span class="pagenumber">20</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Команды git</h3>
+        <ul>
+<li>git commit --amend: edit a commit’s contents/message</li>
+<li>git reset HEAD [file]: unstage a file</li>
+<li>git checkout -- [file]: discard changes</li>
+</ul>
+
+      
+      <span class="pagenumber">21</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Advanced Git</h3>
+        <ul>
+<li>git config: Git is highly customizable</li>
+<li>git clone --depth=1: shallow clone, without entire version history</li>
+<li>git add -p: interactive staging</li>
+<li>git rebase -i: interactive rebasing</li>
+<li>git blame: show who last edited which line</li>
+<li>git stash: temporarily remove modifications to working directory</li>
+<li>git bisect: binary search history (e.g. for regressions)</li>
+<li>.gitignore: specify intentionally untracked files to ignore</li>
+</ul>
+
+      
+      <span class="pagenumber">22</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 5. Version Control (Git)
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
