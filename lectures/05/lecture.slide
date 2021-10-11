@@ -1,0 +1,188 @@
+# Промышленное программирование
+
+Лекция 5. Version Control (Git)
+
+## Version control
+
+.image img/version-control.png
+
+## Системы контроля версий
+
+* Системы контроля версий (Version Control Systems, VCS) - инструменты, используемые для отслеживания изменений исходного кода (и не только)
+* Кроме этого, VSC помогают вести совместную работу над проектом, путем внесения атомарных изменений в общей кодовой базе
+* VSC хранят историю всех изменений над исходным кодом, включая метаданные (авторство, дату, комментарий и пр.), что позволяет понимать, почему текущее состояние выглядит именно так (и, при необходимости, восстанавливать предыдущие версии)
+
+## Системы контроля версий
+
+Системы контроля версий позволяют (в том числе) ответить на вопросы:
+
+* Кто написал эту часть кода?
+* Когда была изменена эта конкретная строка кода? Кем? Почему?
+* Когда среди последних N версий кода что-то пошло не так (сломался тест, хуже - сервис)?
+
+## Централизованные VCS
+
+* Центральный сервер следит за версиями, клиенты получают файлы из него
+* Много лет назад это было стандартом
+* Централизованный сервер является уязвимым местом всей системы - его отказ приводит к остановке работы или даже к потере данных и истории
+* CVS (середина 80х), Subversion (SVN, 2000)
+
+## Распределенные VSC
+
+* Клиенты полностью копируют (клонируют) весь репозиторий
+* Изменения в локальных копиях время от времени выгружаются в удаленный репозиторий
+* При отказе сервера (и отсутствии бэкапов) можно восстановить репозиторий из клиентской копии
+* Git, Mercurial, Bazaar
+
+## Git
+
+* Разработана Линусом Торвальдсом для использования в процессе разработки ядра Linux
+* Является самой быстрой распределенной VSC, использующей самое компактное хранилище ревизий
+* Одна из самых популярных VSC, де-факто - стандарт
+* Интерфейс управления git-репозиторием может показаться сложным
+* While an ugly interface has to be memorized, a beautiful design can be understood
+
+## Git
+
+.image img/git.png
+
+
+## Модель данных
+
+* В терминах Git файл - это "blob", последовательность байт
+* Директория - "tree", отображает имена в другие blob'ы и tree
+* Snapshot - верхнеуровневый tree
+
+        root (tree)
+        |
+        +- foo (tree)
+        |  |
+        |  + bar.txt (blob, contents = "hello world")
+        |
+        +- baz.txt (blob, contents = "git is wonderful")
+
+
+## Модель истории
+
+* История в Git - ориентированный ациклический граф snapshot'ов
+* Каждый snapshot имеет одного или нескольких родителей
+* Простейший случай - линейная история, каждый snapshot имеет одного родителя
+* Множество родителей может появиться, например, в результате слияния (merge) двух веток (branch)
+* Snapshot в истории называется commit
+
+## Git
+
+        // a file is a bunch of bytes
+        type blob = array[byte]
+
+        // a directory contains named files and directories
+        type tree = map[string, tree | blob]
+
+        // a commit has parents, metadata, and the top-level tree
+        type commit = struct {
+            parent: array[commit]
+            author: string
+            message: string
+            snapshot: tree
+        }
+
+
+## Адресация
+
+* Объект (object) - blob, tree или commit
+* Адрес объекта - SHA-1 хэш его содержания
+
+        type object = blob | tree | commit
+        objects = map[string, object]
+
+        def store(object):
+            id = sha1(object)
+            objects[id] = object
+
+        def load(id):
+            return objects[id]
+
+
+## Адресация
+
+* Когда tree или commit ссылается на какой-либо объект, он хранит хэш этого объекта
+
+        100644 blob 4448adbf7ecd394f42ae135bbeed9676e894af85    baz.txt
+        040000 tree c68d233a33c5c06e0340e4c224f0afca87c8ce87    foo
+
+
+## Reference
+
+* Reference - это "человекочитаемые" имена для SHA-1 хэшей
+* Reference указывает на commit, и они могут быть изменены (и постоянно меняются, например, для указания на более свежий commit)
+* Специальный reference HEAD указывает, где мы (наше текущее состояние репозитория) сейчас в истории
+
+
+## Репозиторий
+
+* Git-репозиторий - набор объектов и reference'ов
+* Данные репозитория хранятся в директории .git в корне репозитория
+* Все команды git ... проводят манипуляции над объектами и reference'ами
+
+## Staging
+
+* Зачастую не хочется иметь в удаленном репозитории все файлы, присутствующие локально (например, артефакты сборки, временные файлы, недоделанные фичи)
+* При создании commit'а в него входят изменения, явно добавленные в текущий stage
+* Более того, можно построчно указать, какие изменения должны попасть в текущий коммит
+
+## Установка git
+
+* [Как установить Git под вашу платформу](https://githowto.com/ru)
+* [Настройка Git](https://githowto.com/ru/setup)
+* [Список полезных сокращений](https://githowto.com/ru/aliases)
+
+## Команды git
+
+* git help [command]: get help for a git command
+* git init: creates a new git repo, with data stored in the .git directory
+* git status: tells you what’s going on
+* git add [filename]: adds files to staging area
+* git commit: creates a new commit
+* git log: shows a flattened log of history
+* git log --all --graph --decorate: visualizes history as a DAG
+* git diff [filename]: show changes you made relative to the staging area
+* git diff [revision] [filename]: shows differences in a file between snapshots
+* git checkout [revision]: updates HEAD and current branch
+
+
+## Команды git
+
+* git branch: shows branches
+* git branch [name]: creates a branch
+* git checkout -b [name]: creates a branch and switches to it
+    - same as git branch [name]; git checkout [name]
+* git merge [revision]: merges into current branch
+* git rebase: rebase set of patches onto a new base
+* git cherry-pick: apply the changes introduced by some existing commits
+
+## Команды git
+
+* git remote: list remotes
+* git remote add [name] [url]: add a remote
+* git push [remote] [local branch]:[remote branch]: send objects to remote, and update remote reference
+* git branch --set-upstream-to=[remote]/[remote branch]: set up correspondence between local and remote branch
+* git fetch: retrieve objects/references from a remote
+* git pull: same as git fetch; git merge
+* git clone: download repository from remote
+
+## Команды git
+
+* git commit --amend: edit a commit’s contents/message
+* git reset HEAD [file]: unstage a file
+* git checkout -- [file]: discard changes
+
+## Advanced Git
+
+* git config: Git is highly customizable
+* git clone --depth=1: shallow clone, without entire version history
+* git add -p: interactive staging
+* git rebase -i: interactive rebasing
+* git blame: show who last edited which line
+* git stash: temporarily remove modifications to working directory
+* git bisect: binary search history (e.g. for regressions)
+* .gitignore: specify intentionally untracked files to ignore
