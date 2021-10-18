@@ -5,3 +5,4 @@
 3. [Редакторы кода](lectures/03)
 4. [Преобразование данных](lectures/04)
 5. [Version Control (git)](lectures/05)
+6. [Модели ветвления](lectures/06)
