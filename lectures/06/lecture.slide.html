@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 6. Модели ветвления
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>Модели ветвления</h3>
+        <ul>
+<li>В современной разработке VCS не только про контроль изменений, но и про организацию процессов (разработки, релизов, стабилизации, ...)</li>
+<li>VCS позволяют координировать процессы в крупном проекте, контролируя основные этапы</li>
+<li>Модели ветвления (workflow) - практики, упрощающие работу над проектом (которые за нас уже кто-то придумал)</li>
+<li>Смысл модели ветвления в том, чтобы организовать добавление и публикацию изменений в исходном коде репозитория, управление различными версиями, понимание changelog'а релизов, ...</li>
+</ul>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Модели ветвления</h3>
+        <ul>
+<li>Модель ветвления - это не правило, которому нужно следовать, а скорее путеводитель</li>
+<li>Можно просто выбрать определенные аспекты и сочетать их так как вам нужно</li>
+<li>Несколько примеров: Feature Branch Workflow, Gitflow, Trunk-Based Development</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Central Workflow</h3>
+        <ul>
+<li>В репозитории существует одна ветка master, все изменения коммитятся напрямую в нее</li>
+<li>Подходит для ведения проекта одному-двум людям, например, какой-то pet project, учебный проект или хранилище dot файлов - когда не нужны гарантии качества, стабилизация, тестирование и т.п.</li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Feature Branch Workflow</h3>
+        <ul>
+<li>Вся работа над новой функциональностью должна производится в отдельной ветке (вероятно, несколькими разработчиками)</li>
+<li>Такая инкапсуляция облегчает работу нескольких разработчиков над общей функциональностью в рамках одной кодовой базы</li>
+<li>Также это значит, что нерабочий код никогда не попадет в ветку master, если процессы интеграции реализованы правильным образом и эффективно обеспечивают контроль качества</li>
+<li>Допускаются долгоживущие ветки, когда фича отлаживается внутри отдельной ветки - из-за этого могут возникать проблемы при слиянии, так как за время жизни ветки кодовая база может сильно поменяться</li>
+<li>Для облегчения слияния таких долгоживущих веток можно переодически выполнять rebase на главную ветку</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Feature Branch Workflow</h3>
+        <ul>
+<li>Новая функциональность при добавлении должна проходить процесс код-ревью</li>
+<li>Код-ревью возможен как на этапе слияния в master, так и при добавлении отдельных изменения в feature branch</li>
+<li>В PR производится доработка недостатков, выявленных другими разработчиками</li>
+<li>В master должна сливаться уже полностью готовая функциональность, которую хоть сразу же можно выкатывать на пользователей</li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Feature Branch Workflow</h3>
+        <ul>
+<li><code>git checkout -b new-feature</code> (лучше давать осмысленные названия веткам, например, содержащие тикет)</li>
+<li><code>git push -u origin new-feature</code></li>
+<li><code>git merge new-feature</code></li>
+<li>Кроме этого, от <code>new-feature</code> можно отводить дополнительные ветки: <code>git checkout new-feature; git checkout -b change-for-feature</code></li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Trunk-Based Development</h3>
+        <ul>
+<li>Trunk-Based Development не является новым подходом. Он был тактически продуман еще в восьмидесятых годах, а с середины девяностых стал набирать популярность. Крупнейшие разработчики программных продуктов, такие как Google и Facebook, широко применяют данный подход в организции разработки</li>
+<li>Разработчики совместно работают над кодом в одной ветке, называемой «главной» (master или main в Git)</li>
+<li>Второстепенные feature-ветки также могут создаваться, но они имеют короткий срок жизни</li>
+<li>Данный подход позволяет разработчикам избежать сложностей связанных со слиянием веток</li>
+</ul>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Trunk-Based Development</h3>
+        <ul>
+<li>При использовании разработки на основе главной ветки процессы непрерывной интеграции и непрерывной поставки являются критически необходимыми, так как позволяют участникам команды прогнозируемо интегрировать свои наработки в основной код с обеспечением гарантии качества результата</li>
+<li>Релизы могут быть в отдельных ветках, отведенных от master, однако коммитить в них можно только hotfix</li>
+<li>В master ветке нужно уметь ограничивать неготовый к релизу функционал</li>
+</ul>
+
+      
+      <span class="pagenumber">9</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        
+<div class="image">
+  <img src="img/gitflow.png">
+</div>
+
+      
+      <span class="pagenumber">10</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li>Модель ветвления Gitflow была впервые опубликована и стала популярной, благодаря статье <a href="https://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="noopener">Vincent Driessen</a></li>
+<li>Предполагает выстраивание строгой модели ветвления вокруг релиза проекта, которая дает надежную схему управления крупными проектами</li>
+<li>Отлично подходит для проектов, которые имеют спланированный цикл релиза</li>
+</ul>
+
+      
+      <span class="pagenumber">11</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li>Кроме feature-веток в Gitflow используются отдельные ветки для подготовки, поддержки и записи релиза</li>
+<li>Gitflow использует собственный набор инструментов git-flow, который легко интегрируется с Git, добавляя новые команды Git</li>
+<li>В ветке master хранится официальная история релиза, а ветка develop служит в качестве интеграционной ветки для новых функций</li>
+<li>Удобно тегировать все коммиты в ветке master номером версии</li>
+<li>Ветка develop отводится от ветки master в начале работы над проектом</li>
+</ul>
+
+      
+      <span class="pagenumber">12</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li><code>git branch develop</code></li>
+<li><code>git push -u origin develop</code></li>
+<li>(при работе с <code>git-flow</code>) <code>git flow init</code></li>
+</ul>
+
+      
+      <span class="pagenumber">13</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li>Каждая новая функциональность должна разрабатываться в отдельной ветке</li>
+<li>Ветки функций создаются не на основе master, a на основе develop</li>
+<li>Когда работа над новой функциональностью завершена, она вливается назад в develop</li>
+<li>Новый код не должен отправляться напрямую в master</li>
+</ul>
+
+      
+      <span class="pagenumber">14</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        
+<div class="image">
+  <img src="img/gitflow1.png">
+</div>
+
+      
+      <span class="pagenumber">15</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li><code>git checkout develop</code></li>
+<li><code>git checkout -b feature_branch</code></li>
+<li>(при работе с <code>git-flow</code>) <code>git flow feature start feature_branch</code></li>
+</ul>
+
+      
+      <span class="pagenumber">16</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li><code>git checkout develop</code></li>
+<li><code>git merge feature_branch</code></li>
+<li>(при работе с <code>git-flow</code>) <code>git flow feature finish feature_branch</code></li>
+</ul>
+
+      
+      <span class="pagenumber">17</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li>Когда принято решение о релизе, от ветки develop создается ветка release</li>
+<li>Новая функциональность в релиз не добавляется, а только исправляются баги</li>
+<li>Когда все готово, ветка release сливается в master, и ей присваивается тег с версией</li>
+<li>Кроме этого, она должна быть также слита обратно в ветку develop</li>
+</ul>
+
+      
+      <span class="pagenumber">18</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        
+<div class="image">
+  <img src="img/gitflow1.png">
+</div>
+
+      
+      <span class="pagenumber">19</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li><code>git checkout develop</code></li>
+<li><code>git checkout -b release/0.1.0</code></li>
+<li>(при работе с git-flow) <code>git flow release start 0.1.0</code></li>
+</ul>
+
+      
+      <span class="pagenumber">20</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Gitflow</h3>
+        <ul>
+<li><code>git checkout develop</code></li>
+<li><code>git merge release/0.1.0</code></li>
+<li>(при работе с <code>git-flow</code>) <code>git flow release finish '0.1.0'</code></li>
+</ul>
+
+      
+      <span class="pagenumber">21</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 6. Модели ветвления
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
