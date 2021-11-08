@@ -1,0 +1,362 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 7. Тестирование
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>Тестирование</h3>
+        <p>Заходит однажды тестировщик в бар. Забегает в бар. Пролезает в бар. Танцуя, проникает в бар. Крадется в бар. Врывается в бар. Прыгает в бар</p>
+<p>и заказывает:</p>
+<p>кружку пива, 2 кружки пива, 0 кружек пива, 999999999 кружек пива, ящерицу в стакане, –1 кружку пива, qwertyuip кружек пива.</p>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Цели тестирования</h3>
+        <ul>
+<li>Тестирование ПО — проверка соответствия реальных и ожидаемых результатов поведения программы, проводимая на конечном наборе тестов, выбранном определённым образом.</li>
+<li>Цель тестирования — проверка соответствия ПО предъявляемым требованиям, обеспечение уверенности в качестве ПО, поиск очевидных ошибок в программном обеспечении, которые должны быть выявлены до того, как их обнаружат пользователи программы.</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Цели тестирования</h3>
+        <p>Тестирование ПО производится:</p>
+<ul>
+<li>Для проверки соответствия требованиям.</li>
+<li>Для обнаружение проблем на более ранних этапах разработки и предотвращение повышения стоимости продукта.</li>
+<li>Обнаружение вариантов использования, которые не были предусмотрены при разработке. А также взгляд на продукт со стороны пользователя.</li>
+<li>Повышение лояльности к компании и продукту, т.к. любой обнаруженный дефект негативно влияет на доверие пользователей.</li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Принципы тестирования</h3>
+        <ul>
+<li>Тестирование демонстрирует наличие дефектов</li>
+<li>Исчерпывающее тестирование невозможно</li>
+<li>Раннее тестирование</li>
+<li>Скопление дефектов</li>
+<li>Парадокс пестицида</li>
+<li>Тестирование зависит от контекста</li>
+<li>Заблуждение об отсутствии ошибок</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Отчет об ошибке</h3>
+        <ul>
+<li>Уникальный идентификатор (ID) — присваивается автоматически системой при создании баг-репорта.</li>
+<li>Тема (краткое описание, Summary) — кратко сформулированный смысл дефекта, отвечающий на вопросы: Что? Где? Когда(при каких условиях)?</li>
+<li>Подробное описание (Description) — более широкое описание дефекта (указывается опционально).</li>
+<li>Шаги для воспроизведения (Steps To Reproduce) — описание четкой последовательности действий, которая привела к выявлению дефекта. В шагах воспроизведения должен быть описан каждый шаг, вплоть до конкретных вводимых значений, если они играют роль в воспроизведении дефекта.</li>
+<li>Фактический результат (Actual result) — описывается поведение системы на момент обнаружения дефекта в ней. чаще всего, содержит краткое описание некорректного поведения(может совпадать с темой отчета о дефекте).</li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Отчет об ошибке</h3>
+        <ul>
+<li>Ожидаемый результат (Expected result) — описание того, как именно должна работать система в соответствии с документацией.</li>
+<li>Вложения (Attachments) — скриншоты, видео или лог-файлы.</li>
+<li>Серьёзность дефекта (важность, Severity) — характеризует влияние дефекта на работоспособность приложения.</li>
+<li>Приоритет дефекта (срочность, Priority) — указывает на очерёдность выполнения задачи или устранения дефекта.</li>
+<li>Статус (Status) — определяет текущее состояние дефекта. Статусы дефектов могут быть разными в разных баг-трекинговых системах.</li>
+<li>Окружение (Environment) – окружение, на котором воспроизвелся баг.</li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Окружения проекта</h3>
+        <ul>
+<li>Development - за данную среду отвечают разработчики, в ней они пишут код, проводят отладку, исправляют ошибки</li>
+<li>Testing - среда, в которой работают тестировщики (проверяют функционал, проводят smoke и регрессионные тесты, воспроизводят.</li>
+<li>Integration - среда, в которой проводят тестирование взаимодействующих друг с другом модулей, систем, продуктов.</li>
+<li>Preprod - среда, которая максимально приближена к продакшену. Здесь проводится заключительное тестирование функционала.</li>
+<li>Production - среда, в которой работают пользователи.</li>
+</ul>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Классификация</h3>
+        <ul>
+<li>Статическое тестирование</li>
+<li>Динамическое тестирование</li>
+</ul>
+
+      
+      <span class="pagenumber">9</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Классификация</h3>
+        <ul>
+<li>Белый ящик</li>
+<li>Серый ящик</li>
+<li>Черный ящик</li>
+</ul>
+
+      
+      <span class="pagenumber">10</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Классификация</h3>
+        <ul>
+<li>Модульное тестирование</li>
+<li>Интеграционное тестирование</li>
+<li>Системное тестирование</li>
+<li>Приёмочное тестирование</li>
+</ul>
+
+      
+      <span class="pagenumber">11</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Классификация</h3>
+        <ul>
+<li>Ручное тестирование (своими силами или с привлечением QA)</li>
+<li>Автоматизированное тестирование</li>
+</ul>
+
+      
+      <span class="pagenumber">12</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Классификация</h3>
+        <ul>
+<li>Позитивное тестирование</li>
+<li>Негативное тестирование</li>
+</ul>
+
+      
+      <span class="pagenumber">13</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Классификация</h3>
+        <ul>
+<li>Функциональное тестирование</li>
+<li>Нефункциональное тестирование
+<ul>
+<li>performance, load, stress, scalability...</li>
+<li>UI, usability, localization, ...</li>
+<li>security</li>
+</ul>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">14</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Тест-кейсы</h3>
+        <ul>
+<li>Тестирование на основе классов эквивалентности (equivalence partitioning)</li>
+<li>Техника анализа граничных значений (boundary value testing)</li>
+<li>Попарное тестирование (pairwise testing)</li>
+<li>Тестирование на основе состояний и переходов (State-Transition Testing)</li>
+<li>Таблицы принятия решений (Decision Table Testing)</li>
+<li>Доменный анализ (Domain Analysis Testing)</li>
+<li>Сценарий использования (Use Case Testing)</li>
+</ul>
+
+      
+      <span class="pagenumber">15</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Code coverage</h3>
+        <ul>
+<li>Одна из распространенных методик оценки &quot;насколько хорошо протестирован пакет&quot;</li>
+<li>При запуске тестов просчитывается, какие строки кода исполнялись (и, возможно, сколько раз)</li>
+<li>Хорошее покрытие кода тестами абсолютно не означает, что код не содержит багов</li>
+<li>Тем не менее, хорошо покрытый тестами код с большей вероятностью работает стабильно и
+делает то, что от него ожидают, в важных кейсах</li>
+<li>Зачастую в популярных пакетах можно встретить <code>code coverage</code> порядка 80-90%. Это отличный показатель,
+так как из-за явной обработки ошибок появляется много строк кода, исполнение которых маловероятно и тяжело для тестирования</li>
+</ul>
+
+      
+      <span class="pagenumber">16</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Тестирование ПО</h3>
+        <ul>
+<li>Python: <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noopener">unittest</a>, <a href="https://docs.pytest.org/en/6.2.x/" target="_blank" rel="noopener">PyTest</a>, <a href="https://towardsdatascience.com/pytest-for-machine-learning-a-simple-example-based-tutorial-a3df3c58cf8" target="_blank" rel="noopener">PyTest for Machine Learning</a></li>
+<li>C++: <a href="https://www.boost.org/doc/libs/1_75_0/libs/test/doc/html/index.html" target="_blank" rel="noopener">Boost.Test</a>, <a href="https://github.com/google/googletest" target="_blank" rel="noopener">GoogleTest</a></li>
+<li>GoLang: <code>go test</code> + <a href="https://github.com/dbeliakov/mipt-golang-course/blob/master/lectures/07/lecture_07.slide#L86" target="_blank" rel="noopener">полезные пакеты</a></li>
+<li>Нагрузочное тестирование: <a href="https://yandex.ru/dev/tank/" target="_blank" rel="noopener">Яндекс.Танк</a>, <a href="https://jmeter.apache.org/" target="_blank" rel="noopener">JMeter</a>, <a href="https://github.com/grafana/k6" target="_blank" rel="noopener">k6</a></li>
+<li>...</li>
+</ul>
+
+      
+      <span class="pagenumber">17</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 7. Тестирование
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
