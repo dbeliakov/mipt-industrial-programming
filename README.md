@@ -6,3 +6,4 @@
 4. [Преобразование данных](lectures/04)
 5. [Version Control (git)](lectures/05)
 6. [Модели ветвления](lectures/06)
+7. [Тестирование](lectures/07)
