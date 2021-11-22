@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 7. Отладка и профилирование
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>Отладка</h3>
+        <ul>
+<li>Как известно, программа делает не то, что от нее ожидают, а то, что написано у нее в коде</li>
+<li>Программа, которая делает не то, что от нее ожидают никому не нужна</li>
+<li>Задача программиста - сделать так, чтобы код программы описывал то, что от этой программы ожидают</li>
+<li>В некоторых ситуациях сделать так, чтобы программа вела себя ожидаемым образом, бывает затруднительно</li>
+<li>Задача отладки (debugging) - помочь программисту понять, почему программа ведет себя не так, как ожидается</li>
+<li>Зачастую для этого необходимо уметь залезать &quot;внутрь&quot; программы и поэтапно следить за тем, что она делает</li>
+</ul>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Printf</h3>
+        <ul>
+<li>“The most effective debugging tool is still careful thought, coupled with judiciously placed print statements” — Brian Kernighan, Unix for Beginners.</li>
+<li>Самый простой (и тем не менее действенный) способ понять, что же на самом деле делает программа - вывести ее внутреннее состояние на различных этапах исполнения</li>
+<li>В процессе отладки можно более точно определять момент (и код), когда что-то идет не так, и уже более детально исследовать состояние программы</li>
+<li>Обычно printf (или аналоги) добавляют временно для понимания происходящего, после чего удаляют</li>
+<li>Кроме этого, можно изначально писать код таким образом, чтобы программа логировала что она делает с разной степенью точности</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Логирование</h3>
+        <ul>
+<li>У регулярных логов есть преимущества по сравнению с временными printf-ами</li>
+<li>У логов есть разные уровни (обычно DEBUG, INFO, WARN, ERROR), и в зависимости от ситуации можно оставлять информацию определенных уровней</li>
+<li>Логи, обычно, добавляются до того, как будут обнаружены проблемы, и всегда есть шанс, что только их хватит (что сильно упрощает жизнь в случае трудно воспроизводимого бага)</li>
+<li><a href="https://habr.com/ru/post/313686/" target="_blank" rel="noopener">Сравнение логгеров для C++</a></li>
+<li>В python можно использовать стандартный пакет <a href="https://docs.python.org/3/library/logging.html" target="_blank" rel="noopener">logging</a> (<a href="https://webdevblog.ru/logging-v-python/" target="_blank" rel="noopener">примеры</a>)</li>
+<li>В Golang есть не очень удобный стандартный пакет <a href="https://pkg.go.dev/log" target="_blank" rel="noopener">log</a>, более удобная альтернатива <a href="https://github.com/uber-go/zap" target="_blank" rel="noopener">zap</a></li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Форматирование логов</h3>
+        <ul>
+<li>При логировании нужно уметь найти баланс между детализированностью и информатированностью</li>
+<li>Запись чего-либо в лог имеет накладные расходы. Более того, логи могут аггрегироваться по сети с различных инстансов, а не просто писаться в файл</li>
+<li>Что обычно добавляют в лог: время (или timestamp) записи в лог, уровень логирования, модуль или часть системы при необходимости, место в коде (где случилась запись в лог или где произошла ошибка), инстанс или хост, откуда прилетел лог</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Форматирование логов</h3>
+        <ul>
+<li>Кроме этого, лог должен содержать внятное описание что конкретно произошло в данном месте, и, возможно, некоторую дополнительную информацию (например, для access лога полезно иметь ip-адрес, user agent, uri запроса, ...)</li>
+<li>Форматировать логи нужно в соответствии с предполагаемым использованием, например: цветной человекочитаемый вывод при локальном запуске, json (или другой структурированный) формат в других окружениях</li>
+<li>Для цветного форматирования есть специальные последовательности в терминале: <code>echo -e &quot;\e[31;1mThis is red\e[0m&quot;</code></li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Логи сторонних систем</h3>
+        <ul>
+<li>Почти всегда в проекте используются сторонние системы, в которых тоже что-то может пойти не так: вебсерверы (или reverse proxy), базы данных, очереди задач, ...</li>
+<li>Информативность логов сторонних систем обычно остается на совести разработчиков, однако популярные решения обычно дают достаточно информативные логи</li>
+<li>В UNIX системах обычно принято складывать логи в <code>/var/log/</code>, например логи nginx живут в <code>/var/log/nginx</code></li>
+<li>Системные логи можно также поискать в <code>/var/log/journal</code> или использовать <code>journalctl</code> (Linux) или <code>log show</code> (macOS)</li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Отладка</h3>
+        <ul>
+<li>Несмотря на полезность логов, часто бывают ситуации, когда не понятно, где же на самом деле ошибка</li>
+<li>В таких ситуациях необходимо научиться воспроизводить ошибку, в чем почти всегда помогают информативные логи - например, какие действия делал пользователь</li>
+<li>(После того, как стали понятны шаги для воспроизведения ошибки, хорошо бы написать на нее тест)</li>
+<li>В простых сценариях можно наставить printf в интересующих нас местах для того, чтобы узнать внутреннее состояние, приводящее к ошибке</li>
+<li>В более сложных сценариях более продуктивно использовать отладчик (debugger)</li>
+</ul>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Отладка</h3>
+        <ul>
+<li>Отладчик позводяет управлять исполнением программы и на лету исследовать внутреннее состояние</li>
+<li>Мы можем останавливать исполнение программы в интересующие нас моменты времени и запускать исполнение шаг за шагом, исследуя состояние</li>
+<li>Для разных языков существуют разные популярные отладчики: C/C++ - gdb (и lldb), Python - pdb (и opdb), Go - delve</li>
+<li>Наиболее удобный (хотя и менее гибкий может быть в редких кейсах) способ запустить отладчик - использовать функциональность IDE</li>
+</ul>
+
+      
+      <span class="pagenumber">9</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>strace</h3>
+        <ul>
+<li>
+<p>strace позволяет отслеживать системные вызовы процесса</p>
+</li>
+<li>
+<p>На macOS (и BSD) есть альтернатива - dtrace (с отличным от strace синтаксисом команд)</p>
+<pre><code>  # On Linux
+  sudo strace -e lstat ls -l &gt; /dev/null
+  4
+  # On macOS
+  sudo dtruss -t lstat64_extended ls -l &gt; /dev/null</code></pre>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">10</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>tcpdump</h3>
+        <ul>
+<li>tcpdump - анализатор сетевого трафика, позволяет исследовать сетевые пакеты</li>
+<li>Очень часто бывает полезен для отладки сетевых приложений, в том числе на продакшене</li>
+<li>Для работы с ним нужно хотя бы примерно понимать как работает сеть на уровне операционной системы</li>
+<li>Кроме этого, можно использовать <a href="https://www.wireshark.org/" target="_blank" rel="noopener">Wireshark</a></li>
+</ul>
+
+      
+      <span class="pagenumber">11</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Статический анализ</h3>
+        <ul>
+<li>Статический анализ позволяет выявлять потенциальные проблемы в коде анализируя конструкции</li>
+<li>Для C++ <a href="https://www.incredibuild.com/blog/top-9-c-static-code-analysis-tools" target="_blank" rel="noopener">можно найти тут</a></li>
+<li>Для Python <a href="https://luminousmen.com/post/python-static-analysis-tools" target="_blank" rel="noopener">можно найти тут</a></li>
+<li>Для Go - <code>go vet</code> (базовый из коробки), <a href="https://github.com/golangci/golangci-lint" target="_blank" rel="noopener">golangci-lint</a>, ...</li>
+</ul>
+
+      
+      <span class="pagenumber">12</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Профилирование</h3>
+        <ul>
+<li>Даже если программа работает так, как ожидается, она может это делать медленно или с большим потреблением памяти</li>
+<li>Профилирование помогает разложить на составляющие общее время и выделяемую память, что позволяет найти проблемные места в коде</li>
+<li>Большинство профайлеров можно отнести к одной из двух групп: tracing и sampling (<a href="https://jvns.ca/blog/2017/12/17/how-do-ruby---python-profilers-work-/" target="_blank" rel="noopener">подробнее</a>)</li>
+<li>Для Python можно использовать <code>cProfile</code>, для Go - <code>go tool pprof</code> и стандартный пакет <code>pprof</code></li>
+</ul>
+
+      
+      <span class="pagenumber">13</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 7. Отладка и профилирование
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
