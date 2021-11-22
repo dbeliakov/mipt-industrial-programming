@@ -7,3 +7,4 @@
 5. [Version Control (git)](lectures/05)
 6. [Модели ветвления](lectures/06)
 7. [Тестирование](lectures/07)
+8. [Отладка и профилирование](lectures/08)
