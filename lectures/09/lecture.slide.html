@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Промышленное программирование</title>
+    <meta charset='utf-8'>
+    <link rel="icon" href="static/favicon.ico">
+    <script>
+      var notesEnabled =  false ;
+    </script>
+    <script src='static/slides.js'></script>
+
+    
+
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+
+      <article>
+        <h1>Промышленное программирование</h1>
+        
+        
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 9. CI/CD
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+  
+  
+      <article >
+      
+        <h3>Системы сборки</h3>
+        <ul>
+<li>В большинстве проектов, с которыми вы взаимодействуете как разработчик, так или иначе имеют этап сборки</li>
+<li>Для сборки (или тестирования, например) может потребоваться выполнить большое количество действий - например, сгенерировать код файлам описания, собрать .so с какой-либо библиотекой, обновить зависимые компоненты, собрать биндинг для своего языка, собрать итоговый проект, ...</li>
+<li>Существует большое количество систем сборки, которые помогают управлять всеми этапами, необходимыми для получения результата</li>
+</ul>
+
+      
+      <span class="pagenumber">2</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Системы сборки</h3>
+        <ul>
+<li>Системы сборки могут быть сильно разными в зависимости от требований, но суть их работы примерно одна и та же</li>
+<li>Для системы сборки есть набор зависимостей, набор целей, и набор правил, как из одного получить другое</li>
+<li>Вы говорите системе сборки, что хотите получить, а она уже анализирует зависимости и знает, что и как нужно сделать чтобы получить результат. В идеале, для зависимостей, собранных однажды и не изменившихся, она должна переиспользовать результат</li>
+</ul>
+
+      
+      <span class="pagenumber">3</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>make</h3>
+        <ul>
+<li>
+<p>make - вероятно, самая распространенная система сборки, предустанавливается на большинстве ОС семейства UNIX</p>
+</li>
+<li>
+<p>make можно посчитать достаточно простым, однако, с его помощью можно строить очень сложные сценарии сборки</p>
+</li>
+<li>
+<p>Цели, зависимости и правила описываются в Makefile</p>
+<pre><code>  paper.pdf: paper.tex plot-data.png
+          pdflatex paper.tex
+
+  plot-%.png: %.dat plot.py
+          ./plot.py -i $*.dat -o $@
+</code></pre>
+</li>
+<li>
+<p>Первая цель в Makefile - цель по умолчанию. Для ее сборки можно просто позвать <code>make</code></p>
+</li>
+<li>
+<p>Можно позвать определенную цель: <code>make plot-data.png</code></p>
+</li>
+</ul>
+
+      
+      <span class="pagenumber">4</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Управление зависимостями</h3>
+        <ul>
+<li>Современную разработку сложно представить без использования сторонних библиотек и инструментов</li>
+<li>Для версионирования зависимостей используется, зачастую, semantic versioning</li>
+<li>Сами зависимости распространяются через различные репозитории (pipy, npm, apt, brew, ...)</li>
+<li>Для разрешения зависимостей существует большое количество инструментов</li>
+<li>Обычно, зависимости указываются с некоторым набором ограничений - например, мажорная версия 1, минорная и фик версии - любые</li>
+<li>При этом у зависимостей так же могут быть зависимости, и, например, где-то будет указана необходимая минорная версия</li>
+<li>Обычно, кроме правил, есть фиксированный набор зависимостей (в lock файле), либо же определенные зависимости лежат уже рядом в репозитории</li>
+</ul>
+
+      
+      <span class="pagenumber">5</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Continuous Integration</h3>
+        <ul>
+<li>Непрерывная интеграция - подход к разработке приложений, подразумевающий частое проведение сборок проекта и тестирование кода</li>
+<li>Цель — сделать процесс интеграции предсказуемым и обнаружить потенциальные баги и ошибки на ранней стадии, чтобы было больше времени на их исправление</li>
+<li>Впервые термин Continuous Integration появился в 1991 году (Гради Буч, создатель языка UML)</li>
+<li>Он подразумевал инкрементальное уточнение архитектуры при проектировании объектно-ориентированных систем</li>
+<li>Позже в своей книге &quot;Object-Oriented Analysis and Design with Applications&quot; он сказал, что задача методики — ускорить выпуск «внутренних релизов»</li>
+</ul>
+
+      
+      <span class="pagenumber">6</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Continuous Integration</h3>
+        <ul>
+<li>В начале 2000-х методологию непрерывной интеграции стал продвигать один из основателей Agile Alliance Мартин Фаулер</li>
+<li>Его эксперименты с CI привели к появлению первого программного инструмента в этой сфере — CruiseControl</li>
+<li>Цикл сборки в инструменте реализован в виде демона, периодически проверяющего систему управления версиями на изменения в кодовой базе</li>
+</ul>
+
+      
+      <span class="pagenumber">7</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Continuous Integration</h3>
+        <ul>
+<li>Основу непрерывной интеграции составляют два инструмента — система контроля версий и CI-сервер</li>
+<li>Разработчики один или несколько раз в день загружают новый код</li>
+<li>CI-сервер автоматически копирует его со всеми зависимости и выполняет сборку и тестирование</li>
+</ul>
+
+      
+      <span class="pagenumber">8</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Принципы CI</h3>
+        <ul>
+<li><strong>Немедленно исправлять проблемы.</strong> Этот принцип пришёл в CI из <a href="https://en.wikipedia.org/wiki/Extreme_programming" target="_blank" rel="noopener">экстремального программирования</a>. Исправление багов — самая приоритетная задача разработчиков</li>
+<li><strong>Автоматизировать процессы.</strong> Разработчики и менеджеры должны постоянно искать «узкие места» в процессе интеграции и устранять их. Например, часто «бутылочным горлышком» интеграции оказывается тестирование</li>
+<li><strong>Проводить сборки как можно чаще.</strong> Раз в день, чтобы синхронизировать работу команды.</li>
+</ul>
+
+      
+      <span class="pagenumber">9</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Сложности внедрения</h3>
+        <ul>
+<li>Высокие операционные расходы - на поддержку инфраструктуры большого проекта требуется много человеко-часов</li>
+<li>Непрерывная интеграция повышает нагрузку на сотрудников компании (по крайней мере первое время)</li>
+<li>Есть много legacy-проектов, не покрытых автотестами. Бывает, что код надо полностью переписать для полноценного внедрения CI</li>
+</ul>
+
+      
+      <span class="pagenumber">10</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>Инструменты CI</h3>
+        <ul>
+<li><a href="https://www.jenkins.io/" target="_blank" rel="noopener">Jenkins</a></li>
+<li><a href="https://docs.gitlab.com/ee/ci/" target="_blank" rel="noopener">GitLab CI</a></li>
+<li><a href="https://www.drone.io/" target="_blank" rel="noopener">Drone CI</a></li>
+<li><a href="https://www.jetbrains.com/ru-ru/teamcity/" target="_blank" rel="noopener">Teamcity</a></li>
+<li><a href="https://github.com/features/actions" target="_blank" rel="noopener">GitHub Actions</a></li>
+</ul>
+
+      
+      <span class="pagenumber">11</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>CI системы</h3>
+        
+<div class="image">
+  <img src="img/ci-cloud.jpeg">
+</div>
+
+      
+      <span class="pagenumber">12</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>GitHub Actions</h3>
+        <ul>
+<li>Workflow - автоматизированная процедура, добавляемая в репозиторий. Может состоять из нескольких задач, которые запускаются по какому-либо событию</li>
+<li>Event - специфичное событие, которое тригерит workflow. Список возможных событий</li>
+<li>Job - набор шагов, выполняемых последовательно или параллельно. Job может зависить от результата выполнения другой</li>
+<li>Step - индивидуальная задача, которая запускает команду (action). Данные от предыдущего шага доступны в последующих</li>
+<li>Action - набор шагов, который можно использовать как &quot;кирпичик&quot; в своем workflow</li>
+<li>Runner - сервер, на котором установлено соответствующее ПО для запуска задач. Может быть GitHub-hosted и self-hosted</li>
+</ul>
+
+      
+      <span class="pagenumber">13</span>
+      </article>
+  
+  
+  
+      <article >
+      
+        <h3>GitHub Actions</h3>
+        <pre><code>    name: learn-github-actions
+    on: [push]
+    jobs:
+    check-bats-version:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+    - run: npm install -g bats
+    - run: bats -v</code></pre>
+
+      
+      <span class="pagenumber">14</span>
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Лекция 9. CI/CD
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    </section>
+
+    <div id="help">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+    
+    <script src='static/jquery.js'></script>
+    <script src='static/jquery-ui.js'></script>
+    <script src='static/playground.js'></script>
+    <script src='static/play.js'></script>
+    <script>initPlayground(new HTTPTransport());</script>
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
